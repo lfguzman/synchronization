@@ -1,0 +1,59 @@
+# Makefile.common
+
+VERSION := 0.1.0
+
+ROOT_DIR = $(shell pwd | sed 's/\(^.*synchronization\).*$$/\1/')
+INCLUDE_DIR = $(ROOT_DIR)/include
+LIB_DIR = $(ROOT_DIR)/lib
+LIB_STATIC_DIR = $(LIB_DIR)/static
+
+# Google Test directories
+GTEST_DIR = /Users/luis/usr/applications/sandbox/googletest/googletest
+GTEST_LIB_DIR = $(GTEST_DIR)/LFGgccmake
+
+# C++ compiler and std version
+CXX = g++-7.2.0
+CPPSTD = -std=c++17
+
+# Flags passed to the C++ compiler
+CXXOPT := -O2
+
+CXXWARNFLAGS := \
+    -Wall \
+    -Wextra \
+
+CXXFLAGS := $(CPPSTD) $(CXXWARNFLAGS) $(CXXOPT)
+
+CPPFLAGS = \
+    -I$(INCLUDE_DIR) \
+
+LD_FLAGS = \
+    -L$(LIB_DIR) \
+
+LD_STATIC_FLAGS = \
+
+LINKSTATIC = $(AR) -rcs
+LINKDYNAMIC = $(CXX) -shared
+DYNAMIC_EXT = so
+
+# Build a dynamic library
+%.$(DYNAMIC_EXT):
+	@if [ ! -d $(LIB_DIR) ] ; then mkdir -p $(LIB_DIR) ; fi
+	$(LINKDYNAMIC) $(LD_FLAGS) -o $@ $(objects)
+	@-cp $@ $(LIB_DIR)/
+
+# Build a static library
+%.a:
+	@if [ ! -d $(LIB_STATIC_DIR) ] ; then mkdir -p $(LIB_STATIC_DIR) ; fi
+	$(LINKSTATIC) $(LD_STATIC_FLAGS) $@ $(objects)
+	@-cp $@ $(LIB_STATIC_DIR)
+
+# Flag for generating include dependencies
+df = -MM
+
+# Generate dependencies for .C files
+%.d: %.C
+	@set -e; $(CXX) $(df) $(CPPFLAGS) $< \
+             | sed 's/\($*\)\.o[ :]*/\1.o $@ : /g' > $@; \
+             [ -s $@ ] || rm -f $@
+
