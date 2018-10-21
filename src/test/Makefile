@@ -19,20 +19,23 @@ target = alltests
 # the compiler doesn't generate warnings in Google Test headers.
 CPPFLAGS += \
     -isystem $(GTEST_DIR)/include \
+    -isystem $(GMOCK_DIR)/include \
     -I.. \
 
 CXXFLAGS += \
     -I$(GTEST_DIR) \
+    -I$(GMOCK_DIR) \
 
 # -I.. -I$(CPPUNIT_DIR)/include
 #LDFLAGS += -L$(CPPUNIT_DIR)/lib -Wl,-Bdynamic -lcppunit \
 
 LDFLAGS += \
     -L$(GTEST_LIB_DIR) \
+    -L$(GMOCK_LIB_DIR) \
     -L$(LIB_STATIC_DIR) \
     $(ADDITIONAL_LDFLAGS) \
     -l$(library) \
-    -lgtest_main \
+    -lgmock_main \
 
 .PHONY: all
 all: $(target)
@@ -62,7 +65,10 @@ export DYLD_LIBRARY_PATH := $(ld_library_path)
 
 .PHONY: test check
 test check: $(target)
+	@echo Making `pwd` $@
+	@echo
 	@echo DYLD_LIBRARY_PATH=$(DYLD_LIBRARY_PATH)
+	@echo
 	./$(target)
 
 # Include this to generate make dependencies for C '.h' files. Don't

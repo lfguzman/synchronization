@@ -8,6 +8,9 @@
 #include <mutex>
 
 
+/**
+ * Enables multiple readers to get the lock at one time but only one writer
+ */
 class RWLock
 {
 public:

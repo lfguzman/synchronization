@@ -11,6 +11,9 @@ LIB_STATIC_DIR = $(LIB_DIR)/static
 GTEST_DIR = /Users/luis/usr/applications/sandbox/googletest/googletest
 GTEST_LIB_DIR = $(GTEST_DIR)/LFGgccmake
 
+GMOCK_DIR = /Users/luis/usr/applications/sandbox/googletest/googlemock
+GMOCK_LIB_DIR = $(GMOCK_DIR)/make
+
 # C++ compiler and std version
 CXX = g++-7.2.0
 CPPSTD = -std=c++17

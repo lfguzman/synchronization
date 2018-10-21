@@ -6,30 +6,41 @@
 using namespace std;
 
 
-TEST(RWLockTest, multipleLockToRead)
+/**
+ * RWLock is not a recursive lock. If a thread attempts to aquire the lock
+ * when it already has it, it will deadlock waiting for itself to release
+ * the lock. That said, to simplify initial testing try_lock() is used in
+ * a sigle thread to verify if it would have been able to get the lock
+ * when it already has it for either read or write. This is possible since
+ * RWLock is not aware of which thread is requesting the lock, but it should
+ * not be done in production code.
+ */
+
+
+TEST(RWLockTest, thereCanBeMoreThanOneReader)
 {
     auto rwlock = RWLock{};
-    auto r_lock = read_lock{rwlock};
-    auto w_lock = write_lock{rwlock};
+    auto rlock = read_lock{rwlock};
 
-    auto lock = lock_guard{r_lock};
-    ASSERT_EQ(true, rwlock.try_lock_to_read());
+    auto lock = lock_guard{rlock};
+    ASSERT_EQ(true, rlock.try_lock());
 }
 
-
-#if 0
-int main()
+TEST(RWLockTest, thereCanBeOnlyOneWriter)
 {
     auto rwlock = RWLock{};
-    auto r_lock = read_lock{rwlock};
-    auto w_lock = write_lock{rwlock};
+    auto wlock = write_lock{rwlock};
 
+    auto lock = lock_guard{wlock};
+    ASSERT_EQ(false, wlock.try_lock());
+}
+
+TEST(RWLockTest, aWriterCanGetTheLockIfThereAreReaders)
 {
-    auto lock = lock_guard{r_lock};
-}
+    auto rwlock = RWLock{};
+    auto wlock = write_lock{rwlock};
+    auto rlock = read_lock{rwlock};
 
-//    cout << rwlock.try_lock_to_read() << '\n';
-
-    cout << rwlock.try_lock_to_write() << '\n';
+    auto lock = lock_guard{rlock};
+    ASSERT_EQ(false, wlock.try_lock());
 }
-#endif
